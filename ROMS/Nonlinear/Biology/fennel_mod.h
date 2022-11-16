@@ -1,6 +1,7 @@
       MODULE mod_biology
 !
-!svn $Id$
+!git $Id$
+!svn $Id: fennel_mod.h 1099 2022-01-06 21:01:01Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -108,6 +109,7 @@
       integer  :: iDNIT                       ! denitrification flux
       integer  :: ipCO2                       ! partial pressure of CO2
       integer  :: iO2fx                       ! air-sea O2 flux
+      integer  :: iSOxC                       ! sediment O2 consumption
 !
 !  Biological 3D diagnostic variable IDs.
 !
@@ -116,6 +118,13 @@
       integer  :: iPPro = 1                   ! primary productivity
       integer  :: iNO3u = 2                   ! NO3 uptake
       integer  :: iNifx = 3                   ! Nitrification flux
+      integer  :: iPARd = 4                   ! Photosynthetically available radiation
+#ifdef OXYGEN
+      integer  :: iDOxC = 5                   ! Dissolved oxygen consumption
+      integer  :: iRZoo = 6                   ! Zooplankton respiration rate
+      integer  :: iRBac = 7                   ! Bacterial respiration rate
+      integer  :: iOMSi = 8                   ! Organic matter sinking flux
+#endif
 #endif
 !
 !  Biological parameters.
@@ -231,7 +240,7 @@
 !
 !  Set number of diagnostics terms.
 !
-      NDbio3d=3
+      NDbio3d=4
       NDbio2d=0
 # ifdef DENITRIFICATION
       NDbio2d=NDbio2d+1
@@ -240,7 +249,9 @@
       NDbio2d=NDbio2d+2
 # endif
 # ifdef OXYGEN
-      NDbio2d=NDbio2d+1
+!      NDbio2d=NDbio2d+1
+      NDbio2d=NDbio2d+2
+      NDbio3d=NDbio3d+4
 # endif
 !
 !  Initialize biology diagnostic indices.
@@ -257,6 +268,7 @@
 # endif
 # ifdef OXYGEN
       iO2fx=ic+1
+      iSOxC=ic+2	  
 # endif
 #endif
 !

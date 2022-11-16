@@ -1,7 +1,8 @@
 #include "cppdefs.h"
       MODULE mod_scalars
 !
-!svn $Id$
+!git $Id$
+!svn $Id: mod_scalars.F 1118 2022-03-28 21:16:14Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1778,7 +1779,7 @@
         real(r8) :: my_Sm3
         real(r8) :: my_Sm4
 #endif
-#ifdef BVF_MIXING
+#ifdef BV_FREQUENCY
 !
 !-----------------------------------------------------------------------
 !  Brunt-Vaisala frequency based vertical mixing variables.

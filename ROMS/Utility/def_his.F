@@ -1,7 +1,8 @@
 #include "cppdefs.h"
       MODULE def_his_mod
 !
-!svn $Id$
+!git $Id$
+!svn $Id: def_his.F 1122 2022-04-13 19:50:43Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1537,8 +1538,30 @@
             IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
           END IF
         END DO
+!
+!  Define surface tracer fluxes (tracers other than active).
+!
+        DO itrc=NAT+1,NT(ng)
+          IF (Hout(idTsur(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idTsur(itrc))
+            Vinfo( 2)=Vname(2,idTsur(itrc))
+            Vinfo( 3)=Vname(3,idTsur(itrc))
+            Vinfo(14)=Vname(4,idTsur(itrc))
+            Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+            Vinfo(20)='mask_rho'
+# endif
+            Vinfo(21)=Vname(6,idTsur(itrc))
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
+            status=def_var(ng, iNLM, HIS(ng)%ncid,                      &
+     &                     HIS(ng)%Vid(idTsur(itrc)), NF_FOUT,          &
+     &                     nvd3, t2dgrd, Aval, Vinfo, ncname)
+            IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
+          END IF
+        END DO
 
-# if defined BULK_FLUXES || defined FRC_COUPLING
+# ifdef BULK_FLUXES
 !
 !  Define latent heat flux.
 !
@@ -1582,7 +1605,7 @@
           IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
         END IF
 !
-!  Define net longwave radiation flux.
+!  Define longwave radiation flux.
 !
         IF (Hout(idLrad,ng)) THEN
           Vinfo( 1)=Vname(1,idLrad)
@@ -1602,9 +1625,6 @@
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
         END IF
-# endif
-
-# if defined BULK_FLUXES
 !
 !  Define atmospheric air temperature.
 !
@@ -1692,7 +1712,7 @@
         END IF
 # ifdef SHORTWAVE
 !
-!  Define net shortwave radiation flux.
+!  Define shortwave radiation flux.
 !
         IF (Hout(idSrad,ng)) THEN
           Vinfo( 1)=Vname(1,idSrad)
@@ -2817,7 +2837,7 @@
             got_var(idVair)=.TRUE.
             HIS(ng)%Vid(idVair)=var_id(i)
 # endif
-# if defined BULK_FLUXES || defined FRC_COUPLING
+# ifdef BULK_FLUXES
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLhea))) THEN
             got_var(idLhea)=.TRUE.
             HIS(ng)%Vid(idLhea)=var_id(i)
@@ -2827,8 +2847,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLrad))) THEN
             got_var(idLrad)=.TRUE.
             HIS(ng)%Vid(idLrad)=var_id(i)
-# endif
-# ifdef BULK_FLUXES
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTair))) THEN
             got_var(idTair)=.TRUE.
             HIS(ng)%Vid(idTair)=var_id(i)
@@ -3298,7 +3316,7 @@
           RETURN
         END IF
 # endif
-# if defined BULK_FLUXES || defined FRC_COUPLING
+# ifdef BULK_FLUXES
         IF (.not.got_var(idLhea).and.Hout(idLhea,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idLhea)),          &
      &                                  TRIM(ncname)
@@ -3317,8 +3335,6 @@
           exit_flag=3
           RETURN
         END IF
-# endif
-# ifdef BULK_FLUXES
         IF (.not.got_var(idTair).and.Hout(idTair,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idTair)),          &
      &                                  TRIM(ncname)
@@ -5418,8 +5434,40 @@
             IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
           END IF
         END DO
+!
+!  Define surface tracer fluxes (other than active tracers).
+!
+        DO itrc=NAT+1,NT(ng)
+          IF (Hout(idTsur(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idTsur(itrc))
+            Vinfo( 2)=Vname(2,idTsur(itrc))
+            Vinfo( 3)=Vname(3,idTsur(itrc))
+!            IF (itrc.eq.itemp) THEN
+!              Vinfo(11)='upward flux, cooling'
+!              Vinfo(12)='downward flux, heating'
+!            ELSE IF (itrc.eq.isalt) THEN
+!              Vinfo(11)='upward flux, freshening (net precipitation)'
+!              Vinfo(12)='downward flux, salting (net evaporation)'
+!            END IF
+            Vinfo(14)=Vname(4,idTsur(itrc))
+            Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+            Vinfo(20)='mask_rho'
+#  endif
+            Vinfo(21)=Vname(6,idTsur(itrc))
+            Vinfo(22)='coordinates'
+            Aval(5)=REAL(Iinfo(1,idTsur(itrc),ng),r8)
+            HIS(ng)%pioVar(idTsur(itrc))%dkind=PIO_FOUT
+            HIS(ng)%pioVar(idTsur(itrc))%gtype=r2dvar
+!
+            status=def_var(ng, iNLM, HIS(ng)%pioFile,                   &
+     &                     HIS(ng)%pioVar(idTsur(itrc))%vd,             &
+     &                     PIO_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+            IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
+          END IF
+        END DO
 
-#  if defined BULK_FLUXES || defined FRC_COUPLING
+#  ifdef BULK_FLUXES
 !
 !  Define latent heat flux.
 !
@@ -5471,7 +5519,7 @@
           IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
         END IF
 !
-!  Define net longwave radiation flux.
+!  Define longwave radiation flux.
 !
         IF (Hout(idLrad,ng)) THEN
           Vinfo( 1)=Vname(1,idLrad)
@@ -5495,9 +5543,6 @@
      &                   PIO_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__, MyFile)) RETURN
         END IF
-#  endif
-
-#  ifdef BULK_FLUXES
 !
 !  Define atmospheric air temperature.
 !
@@ -5603,7 +5648,7 @@
 
 #  ifdef SHORTWAVE
 !
-!  Define net shortwave radiation flux.
+!  Define shortwave radiation flux.
 !
         IF (Hout(idSrad,ng)) THEN
           Vinfo( 1)=Vname(1,idSrad)
@@ -6993,7 +7038,7 @@
             HIS(ng)%pioVar(idVair)%dkind=PIO_FOUT
             HIS(ng)%pioVar(idVair)%gtype=r2dvar
 #  endif
-#  if defined BULK_FLUXES || defined FRC_COUPLING
+#  ifdef BULK_FLUXES
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idLhea))) THEN
             got_var(idLhea)=.TRUE.
             HIS(ng)%pioVar(idLhea)%vd=var_desc(i)
@@ -7009,8 +7054,6 @@
             HIS(ng)%pioVar(idLrad)%vd=var_desc(i)
             HIS(ng)%pioVar(idLrad)%dkind=PIO_FOUT
             HIS(ng)%pioVar(idLrad)%gtype=r2dvar
-#  endif
-#  ifdef BULK_FLUXES
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTair))) THEN
             got_var(idTair)=.TRUE.
             HIS(ng)%pioVar(idTair)%vd=var_desc(i)
@@ -7584,7 +7627,7 @@
           RETURN
         END IF
 #  endif
-#  if defined BULK_FLUXES || defined FRC_COUPLING
+#  ifdef BULK_FLUXES
         IF (.not.got_var(idLhea).and.Hout(idLhea,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idLhea)),          &
      &                                  TRIM(ncname)
@@ -7603,8 +7646,6 @@
           exit_flag=3
           RETURN
         END IF
-#  endif
-#  ifdef BULK_FLUXES
         IF (.not.got_var(idTair).and.Hout(idTair,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idTair)),          &
      &                                  TRIM(ncname)

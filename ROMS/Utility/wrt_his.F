@@ -1,7 +1,8 @@
 #include "cppdefs.h"
       MODULE wrt_his_mod
 !
-!svn $Id$
+!git $Id$
+!svn $Id: wrt_his.F 1099 2022-01-06 21:01:01Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -1466,8 +1467,34 @@
           END IF
         END IF
       END DO
+!
+!  Write out surface tracer fluxes (tracers other than active).
+!
+    DO itrc=NAT+1,NT(ng)
+      IF (Hout(idTsur(itrc),ng)) THEN
+        scale=1.0_dp
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                    &
+   &                       HIS(ng)%Vid(idTsur(itrc)),                 &
+   &                       HIS(ng)%Rindex, gtype,                     &
+   &                       LBi, UBi, LBj, UBj, scale,                 &
+# ifdef MASKING
+   &                       GRID(ng) % rmask,                          &
+# endif
+   &                       FORCES(ng) % stflx(:,:,itrc))
+        IF (FoundError(status, nf90_noerr, __LINE__, MyFile)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))),            &
+   &                          HIS(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+    END DO
 
-# if defined BULK_FLUXES || defined FRC_COUPLING
+# ifdef BULK_FLUXES
 !
 !  Write out latent heat flux.
 !
@@ -1513,7 +1540,7 @@
         END IF
       END IF
 !
-!  Write out net longwave radiation flux.
+!  Write out longwave radiation flux.
 !
       IF (Hout(idLrad,ng)) THEN
         scale=rho0*Cp
@@ -1534,9 +1561,6 @@
           RETURN
         END IF
       END IF
-# endif
-
-# ifdef BULK_FLUXES
 #  ifdef EMINUSP
 !
 !  Write out evaporation rate (kg/m2/s).
@@ -1608,7 +1632,7 @@
       END IF
 # ifdef SHORTWAVE
 !
-!  Write out net shortwave radiation flux.
+!  Write out shortwave radiation flux.
 !
       IF (Hout(idSrad,ng)) THEN
         scale=rho0*Cp
@@ -4389,8 +4413,39 @@
           END IF
         END IF
       END DO
+!
+!  Write out surface traces fluxes (other than active tracers).
+!
+    DO itrc=NAT+1,NT(ng)
+      IF (Hout(idTsur(itrc),ng)) THEN
+        scale=1.0_dp
+        IF (HIS(ng)%pioVar(idTsur(itrc))%dkind.eq.PIO_double) THEN
+          ioDesc => ioDesc_dp_r2dvar(ng)
+        ELSE
+          ioDesc => ioDesc_sp_r2dvar(ng)
+        END IF
+        status=nf_fwrite2d(ng, iNLM, HIS(ng)%pioFile,                 &
+   &                       HIS(ng)%pioVar(idTsur(itrc)),              &
+   &                       HIS(ng)%Rindex,                            &
+   &                       ioDesc,                                    &
+   &                       LBi, UBi, LBj, UBj, scale,                 &
+#  ifdef MASKING
+   &                       GRID(ng) % rmask,                          &
+#  endif
+   &                       FORCES(ng) % stflx(:,:,itrc))
+        IF (FoundError(status, PIO_noerr, __LINE__, MyFile)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idTsur(itrc))),            &
+   &                          HIS(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+    END DO
 
-#  if defined BULK_FLUXES || defined FRC_COUPLING
+#  ifdef BULK_FLUXES
 !
 !  Write out latent heat flux.
 !
@@ -4448,7 +4503,7 @@
         END IF
       END IF
 !
-!  Write out net longwave radiation flux.
+!  Write out longwave radiation flux.
 !
       IF (Hout(idLrad,ng)) THEN
         scale=rho0*Cp
@@ -4475,9 +4530,7 @@
           RETURN
         END IF
       END IF
-#  endif
 
-#  ifdef BULK_FLUXES
 #   ifdef EMINUSP
 !
 !  Write out evaporation rate (kg/m2/s).
@@ -4568,7 +4621,7 @@
 
 #  ifdef SHORTWAVE
 !
-!  Write out net shortwave radiation flux.
+!  Write out shortwave radiation flux.
 !
       IF (Hout(idSrad,ng)) THEN
         scale=rho0*Cp

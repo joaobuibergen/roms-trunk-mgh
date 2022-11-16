@@ -1,6 +1,7 @@
       MODULE biology_mod
 !
-!svn $Id$
+!git $Id$
+!svn $Id: fennel.h 1099 2022-01-06 21:01:01Z arango $
 !=======================================================================
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !
@@ -119,6 +120,8 @@
 !      12 (6), 351-362, doi:10.4319/lom.2014.12.351.                   !
 !                                                                      !
 !=======================================================================
+!
+! JB: Added annotations. 21.09.2022
 !
       implicit none
 !
@@ -601,6 +604,7 @@
 #ifdef CARBON
         DO k=1,N(ng)
           DO i=Istr,Iend
+!JB: TIC e limitado ao intervalo 400 - 3000
             Bio_old(i,k,iTIC_)=MIN(Bio_old(i,k,iTIC_),3000.0_r8)
             Bio_old(i,k,iTIC_)=MAX(Bio_old(i,k,iTIC_),400.0_r8)
             Bio(i,k,iTIC_)=Bio_old(i,k,iTIC_)
@@ -714,6 +718,13 @@
                 ExpAtt=EXP(-Att)
                 Itop=PAR
                 PAR=Itop*(1.0_r8-ExpAtt)/Att    ! average at cell center
+#ifdef DIAGNOSTICS_BIO
+                DiaBio3d(i,j,k,iPARd)=DiaBio3d(i,j,k,iPARd)+            &
+# ifdef WET_DRY
+     &                                rmask_full(i,j)*                  &
+# endif
+     &                                PAR/dtdays*fiter
+#endif
 !
 !  Compute Chlorophyll-a phytoplankton ratio, [mg Chla / (mg C)].
 !
@@ -845,6 +856,14 @@
 #endif
 #ifdef OXYGEN
                 Bio(i,k,iOxyg)=Bio(i,k,iOxyg)-2.0_r8*N_Flux_Nitrifi
+! Dissolved oxygen consumption 1: Nitrification
+# ifdef DIAGNOSTICS_BIO
+                DiaBio3d(i,j,k,iDOxC)=DiaBio3d(i,j,k,iDOxC)+            &
+#  ifdef WET_DRY
+     &                                rmask_full(i,j)*                  &
+#  endif
+     &                                2.0_r8*N_Flux_Nitrifi*fiter
+# endif
 #endif
 #if defined CARBON && defined TALK_NONCONSERV
                 Bio(i,k,iTAlk)=Bio(i,k,iTAlk)-2.0_r8*N_Flux_Nitrifi
@@ -873,6 +892,14 @@
 #endif
 #ifdef OXYGEN
                 Bio(i,k,iOxyg)=Bio(i,k,iOxyg)-2.0_r8*N_Flux_Nitrifi
+! Dissolved oxygen consumption 1: Nitrification (in the dark)
+# ifdef DIAGNOSTICS_BIO
+                DiaBio3d(i,j,k,iDOxC)=DiaBio3d(i,j,k,iDOxC)+            &
+#  ifdef WET_DRY
+&                                    rmask_full(i,j)*                  &
+#  endif
+&                                    2.0_r8*N_Flux_Nitrifi*fiter
+# endif
 #endif
 #if defined CARBON && defined TALK_NONCONSERV
                 Bio(i,k,iTAlk)=Bio(i,k,iTAlk)-2.0_r8*N_Flux_Nitrifi
@@ -966,6 +993,19 @@
 #ifdef OXYGEN
               Bio(i,k,iOxyg)=Bio(i,k,iOxyg)-                            &
      &                       rOxNH4*(N_Flux_Zmetabo+N_Flux_Zexcret)
+! Dissolved oxygen consumption 2: Zooplankton basal metabolism
+# ifdef DIAGNOSTICS_BIO
+                 DiaBio3d(i,j,k,iDOxC)=DiaBio3d(i,j,k,iDOxC)+            &
+#  ifdef WET_DRY
+&                                    rmask_full(i,j)*                    &
+#  endif
+&                                    rOxNH4*(N_Flux_Zmetabo+N_Flux_Zexcret)
+                 DiaBio3d(i,j,k,iRZoo)=DiaBio3d(i,j,k,iRZoo)+            &
+#  ifdef WET_DRY
+&                                    rmask_full(i,j)*                    &
+#  endif
+&                                    rOxNH4*(N_Flux_Zmetabo+N_Flux_Zexcret)
+# endif
 #endif
 #ifdef CARBON
               Bio(i,k,iSDeC)=Bio(i,k,iSDeC)+                            &
@@ -1029,6 +1069,19 @@
 # endif
               Bio(i,k,iOxyg)=Bio(i,k,iOxyg)-                            &
      &                       (N_Flux_RemineS+N_Flux_RemineL)*rOxNH4
+! Dissolved oxygen consumption 2: Zooplankton basal metabolism
+# ifdef DIAGNOSTICS_BIO
+              DiaBio3d(i,j,k,iDOxC)=DiaBio3d(i,j,k,iDOxC)+              &
+#  ifdef WET_DRY
+&                                rmask_full(i,j)*                       &
+#  endif
+&                                (N_Flux_RemineS+N_Flux_RemineL)*rOxNH4
+              DiaBio3d(i,j,k,iRBac)=DiaBio3d(i,j,k,iRBac)+              &
+#  ifdef WET_DRY
+&                                rmask_full(i,j)*                       &
+#  endif
+&                                (N_Flux_RemineS+N_Flux_RemineL)*rOxNH4
+# endif
 # if defined CARBON && defined TALK_NONCONSERV
               Bio(i,k,iTAlk)=Bio(i,k,iTAlk)+N_Flux_RemineS+             &
      &                       N_Flux_RemineL
@@ -1045,6 +1098,18 @@
      &                      *N_Flux_RemineR
 #  endif
               Bio(i,k,iOxyg)=Bio(i,k,iOxyg)-N_Flux_RemineR*rOxNH4
+# ifdef DIAGNOSTICS_BIO
+              DiaBio3d(i,j,k,iDOxC)=DiaBio3d(i,j,k,iDOxC)+              &
+#  ifdef WET_DRY
+&                                rmask_full(i,j)*                       &
+#  endif
+&                                N_Flux_RemineR*rOxNH4
+              DiaBio3d(i,j,k,iRBac)=DiaBio3d(i,j,k,iRBac)+              &
+#  ifdef WET_DRY
+&                                rmask_full(i,j)*                       &
+#  endif
+&                                N_Flux_RemineR*rOxNH4
+# endif
 #  if defined CARBON && defined TALK_NONCONSERV
               Bio(i,k,iTAlk)=Bio(i,k,iTAlk)+N_Flux_RemineR
 #  endif
@@ -1458,6 +1523,13 @@
             DO k=1,N(ng)
               DO i=Istr,Iend
                 Bio(i,k,ibio)=qc(i,k)+(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
+# ifdef DIAGNOSTICS_BIO
+                DiaBio3d(i,j,k,iOMSi)=DiaBio3d(i,j,k,iOMSi)+            &
+#  ifdef WET_DRY
+&                                    rmask_full(i,j)*                  &
+#  endif
+&                                    FC(i,k)*fiter
+# endif
               END DO
             END DO
 
@@ -1494,6 +1566,13 @@
 #  endif
 #  ifdef OXYGEN
                 Bio(i,1,iOxyg)=Bio(i,1,iOxyg)-cff1*cff3
+#    ifdef DIAGNOSTICS_BIO
+				DiaBio2d(i,j,iSOxC)=DiaBio2d(i,j,iSOxC)+                &
+#     ifdef WET_DRY
+     &                              rmask_full(i,j)*                    &
+#     endif
+     &                              cff1*cff3*Hz(i,j,1)*fiter
+#    endif
 #  endif
 # else
                 Bio(i,1,iNH4_)=Bio(i,1,iNH4_)+cff1
@@ -1502,6 +1581,13 @@
 #   endif
 #  ifdef OXYGEN
                 Bio(i,1,iOxyg)=Bio(i,1,iOxyg)-cff1*cff4
+#    ifdef DIAGNOSTICS_BIO
+                DiaBio2d(i,j,iSOxC)=DiaBio2d(i,j,iSOxC)+                &
+#     ifdef WET_DRY
+     &                              rmask_full(i,j)*                    &
+#     endif
+     &                              cff1*cff4*Hz(i,j,1)*fiter
+#    endif
 #  endif
 #  if defined CARBON && defined TALK_NONCONSERV
                 Bio(i,1,iTAlk)=Bio(i,1,iTAlk)+cff1

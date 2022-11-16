@@ -1,5 +1,6 @@
 /*
-** svn $Id$
+** git $Id$
+** svn $Id: fennel_var.h 1110 2022-02-27 21:37:32Z arango $
 *************************************************** Hernan G. Arango ***
 ** Copyright (c) 2002-2022 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
@@ -320,6 +321,16 @@
 # ifdef OXYGEN
           CASE ('iDbio2(iO2fx)')
             iDbio2(iO2fx)=varid
+          CASE ('iDbio2(iSOxC)')
+            iDbio2(iSOxC)=varid
+          CASE ('iDbio3(iDOxC)')
+            iDbio3(iDOxC)=varid
+          CASE ('iDbio3(iRZoo)')
+            iDbio3(iRZoo)=varid
+          CASE ('iDbio3(iRBac)')
+            iDbio3(iRBac)=varid
+          CASE ('iDbio3(iOMSi)')
+            iDbio3(iOMSi)=varid
 # endif
           CASE ('iDbio3(iPPro)')
             iDbio3(iPPro)=varid
@@ -327,4 +338,6 @@
             iDbio3(iNO3u)=varid
           CASE ('iDbio3(iNifx)')
             iDbio3(iNifx)=varid
+          CASE ('iDbio3(iPARd)')
+            iDbio3(iPARd)=varid
 #endif

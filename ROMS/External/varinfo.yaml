@@ -1,6 +1,7 @@
 # ROMS I/O NetCDF Metadata Dictionary
 #
-#svn $Id$
+#git $Id$
+#svn $Id: varinfo.yaml 1110 2022-02-27 21:37:32Z arango $
 #========================================================= Hernan G. Arango ==#
 #  Copyright (c) 2002-2022 The ROMS/TOMS Group                                #
 #    Licensed under a MIT/X style license                                     #
@@ -40,7 +41,7 @@
 #     field = field (source_units) * scale + add_offset
 #
 
-svn_repository: $URL$
+svn_repository: $URL: https://www.myroms.org/svn/src/trunk/ROMS/External/varinfo.yaml $
 
 convention:     CF 1.10
 
@@ -1325,7 +1326,7 @@ metadata:
 
   - variable:       *SWRAD                                           # Input/Output
     standard_name:  net_downward_shortwave_flux_at_sea_water_surface
-    long_name:      net solar shortwave radiation flux
+    long_name:      solar shortwave radiation flux
     units:          watt meter-2                                     # Input:  [Watt/m2]
     field:          shortwave radiation                              # [Celsius m/s]
     time:           srf_time                                         # Output: [Watt/m2]
@@ -1336,7 +1337,7 @@ metadata:
 
   - variable:       lwrad_down                                       # Input
     standard_name:  surface_downward_longwave_flux
-    long_name:      downward longwave radiation flux
+    long_name:      downwelling longwave radiation flux
     units:          watt meter-2                                     # Input:  [Watt/m2]
     field:          downwelling longwave radiation                   # [Celsius m/s]
     time:           lrf_time
@@ -3672,6 +3673,17 @@ metadata:
     add_offset:     0.0d0
     scale:          1.0d0
 
+  - variable:       SO2C                                             # Input/Output
+    standard_name:  mole_concentration_flux_of_molecular_oxygen_into_sediment
+    long_name:      Sediment O2 consumption rate
+    units:          millimole_oxygen meter-2 day-1                   # [millimole/m2/day]
+    field:          Sediment O2 consumption rate
+    time:           ocean_time
+    index_code:     iDbio2(iSOxC)
+    type:           r2dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
   - variable:       P_Production                                     # Input/Output
     standard_name:  sea_water_primary_production_of_biomass_expressed_as_nitrogen
     long_name:      primary production
@@ -3679,6 +3691,17 @@ metadata:
     field:          primary production
     time:           ocean_time
     index_code:     iDbio3(iPPro)
+    type:           r3dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
+  - variable:       DO2C                                             # Input/Output
+    standard_name:  mole_concentration_flux_of_oxygen_consumption_expressed_as_oxygen_in_sea_water
+    long_name:      dissolved oxygen consumption rate
+    units:          millimole_oxygen meter-3 day-1                   # [millimole/m3/day]
+    field:          dissolved oxygen consumption rate
+    time:           ocean_time
+    index_code:     iDbio3(iDOxC)
     type:           r3dvar
     add_offset:     0.0d0
     scale:          1.0d0
@@ -3695,12 +3718,56 @@ metadata:
     scale:          1.0d0
 
   - variable:       Nitrif_flux                                      # Input/Output
-    standard_name:  mole_concentration_of_denitrification_flux_expressed_as_nitrogen_at_sea_bottom
+    standard_name:  mole_concentration_of_nitrification_flux_expressed_as_nitrogen_in_sea_water
     long_name:      Nitrification flux
     units:          millimole_nitrogen meter-3 day-1                 # [millimole/m3/day]
-    field:          denitrification flux
+    field:          nitrification flux
     time:           ocean_time
     index_code:     iDbio3(iNifx)
+    type:           r3dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
+  - variable:       PAR                                             # Input/Output
+    standard_name:  photosynthetically_available_radiation
+    long_name:      photosynthetically available radiation
+    units:          watt meter-2  .............                     # [watt/m2]
+    field:          photosynthetically available radiation
+    time:           ocean_time
+    index_code:     iDbio3(iPARd)
+    type:           r3dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
+  - variable:       Zoo_respiration                                      # Input/Output
+    standard_name:  mole_concentration_flux_of_zooplankton_respiration_expressed_as_oxygen_in_sea_water
+    long_name:      zooplankton respiration rate
+    units:          millimole_oxygen meter-3 day-1                       # [millimole/m3/day]
+    field:          zooplankton respiration
+    time:           ocean_time
+    index_code:     iDbio3(iRZoo)
+    type:           r3dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
+  - variable:       Bac_respiration                                      # Input/Output
+    standard_name:  mole_concentration_flux_of_bacterial_respiration_expressed_as_oxygen_in_sea_water
+    long_name:      bacterial respiration rate
+    units:          millimole_oxygen meter-3 day-1                       # [millimole/m3/day]
+    field:          bacterial respiration
+    time:           ocean_time
+    index_code:     iDbio3(iRBac)
+    type:           r3dvar
+    add_offset:     0.0d0
+    scale:          1.0d0
+
+  - variable:       OM_sinking                                           # Input/Output
+    standard_name:  mole_concentration_sinking_flux_of_organic_matter_expressed_as_nitrogen_in_sea_water
+    long_name:      organic matter sinking flux
+    units:          millimole_nitrogen meter-2 day-1                       # [millimole/m3/day]
+    field:          organic matter sinking flux
+    time:           ocean_time
+    index_code:     iDbio3(iOMSi)
     type:           r3dvar
     add_offset:     0.0d0
     scale:          1.0d0

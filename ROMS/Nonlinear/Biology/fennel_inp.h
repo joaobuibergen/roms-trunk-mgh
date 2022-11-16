@@ -1,6 +1,7 @@
       SUBROUTINE read_BioPar (model, inp, out, Lwrite)
 !
-!svn $Id$
+!git $Id$
+!svn $Id: fennel_inp.h 1099 2022-01-06 21:01:01Z arango $
 !================================================== Hernan G. Arango ===
 !  Copyright (c) 2002-2022 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
@@ -550,6 +551,71 @@
                 Dout(i,ng)=Lbio(ng)
               END DO
 # endif
+# ifdef OXYGEN
+            CASE ('Dout(iSOxC)')
+              IF (iDbio2(iSOxC).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio2(iSOxC)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio2(iSOxC)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
+# ifdef OXYGEN
+            CASE ('Dout(iDOxC)')
+              IF (iDbio3(iDOxC).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio3(iDOxC)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iDOxC)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
+# ifdef OXYGEN
+            CASE ('Dout(iRZoo)')
+              IF (iDbio3(iRZoo).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio3(iRZoo)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iRZoo)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
+# ifdef OXYGEN
+            CASE ('Dout(iRBac)')
+              IF (iDbio3(iRBac).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio3(iRBac)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iRBac)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
+# ifdef OXYGEN
+            CASE ('Dout(iOMSi)')
+              IF (iDbio3(iOMSi).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio3(iOMSi)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iOMSi)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
             CASE ('Dout(iPPro)')
               IF (iDbio3(iPPro).eq.0) THEN
                 IF (Master) WRITE (out,40) 'iDbio3(iPPro)'
@@ -580,6 +646,17 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Lbio)
               i=iDbio3(iNifx)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iPARd)')
+              IF (iDbio3(iPARd).eq.0) THEN
+                IF (Master) WRITE (out,40) 'iDbio3(iPARd)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iPARd)
               DO ng=1,Ngrids
                 Dout(i,ng)=Lbio(ng)
               END DO
