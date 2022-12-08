@@ -519,11 +519,11 @@
 !  Stop computations if exceeding maximum speed allowed.  This will be
 !  useful during debugging to avoid NaNs in output NetCDF files.
 !
-          IF (maxspeed(ng).gt.max_speed) THEN
-            exit_flag=1
-            WRITE (maxvalchar,'(1pe8.1)') maxspeed(ng)
-            blowup_string='MaxSpeed = '//maxvalchar
-          END IF
+!          IF (maxspeed(ng).gt.max_speed) THEN
+!            exit_flag=1
+!            WRITE (maxvalchar,'(1pe8.1)') maxspeed(ng)
+!            blowup_string='MaxSpeed = '//maxvalchar
+!          END IF
 #ifdef SOLVE3D
 !
 !  Stop computation if exceeding maximum density anomaly allowed.
